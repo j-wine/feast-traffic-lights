@@ -45,6 +45,21 @@ services:
       - KAFKA_BROKER=broker:9092
       - FEAST_REPO_PATH=/app/feature_repo
 
+  jobmanager:
+    image: flink:latest
+    ports:
+      - 8081:8081
+    environment:
+      FLINK_PROPERTIES: "jobmanager.rpc.address: jobmanager"
+    command:
+      - jobmanager
+
+  taskmanager:
+    image: flink:latest
+    environment:
+      FLINK_PROPERTIES: "jobmanager.rpc.address: jobmanager"
+    command:
+      - taskmanager
 
   flink_job:
     build:
@@ -52,16 +67,21 @@ services:
     container_name: flink_job
     depends_on:
       - broker
+      - jobmanager
+      - taskmanager
       - redis
     environment:
       - KAFKA_BROKER=broker:9092
       - FLINK_JOB_MANAGER_RPC_ADDRESS=jobmanager
-    ports:
-      - "8081:8081" # Flink web dashboard
+    command: >
+      flink run -py /opt/flink/usrlib/flink_job.py
+      --jobmanager jobmanager:8081
+      --parallelism 2
     volumes:
-    - ./streaming/transformer/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
-    - ./streaming/transformer/flink_job.py:/opt/flink/usrlib/flink_job.py
+      - ./streaming/transformer/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
+      - ./streaming/transformer/flink_job.py:/opt/flink/usrlib/flink_job.py
     restart: always
+
 
   registry:
     container_name: registry

@@ -12,11 +12,15 @@ RUN apt update -y \
     && tar -C /flink --strip-components 1 -zxvf /flink/flink.tgz \
     && rm /flink/flink.tgz
 
+# Set environment variables
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-arm64/
+ENV FLINK_HOME /flink
+ENV PATH $PATH:$FLINK_HOME/bin
+
 WORKDIR /taskscripts
 
 COPY poetry.lock pyproject.toml ./
 
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-arm64/
 
 RUN poetry export -f requirements.txt -o requirements.txt --without-hashes \
     && pip install -r requirements.txt \
@@ -24,3 +28,5 @@ RUN poetry export -f requirements.txt -o requirements.txt --without-hashes \
 
 ADD https://repo1.maven.org/maven2/org/apache/flink/flink-connector-kafka/3.4.0-1.20/flink-connector-kafka-3.4.0-1.20.jar /jars
 COPY flink_job.py ./
+COPY conf $FLINK_HOME/conf
+CMD ["flink", "run", "-py", "/taskscripts/flink_job.py", "--jobmanager", "jobmanager:8081", "--target", "local"]
