@@ -1,6 +1,6 @@
 FROM python:3.9.18-bullseye
 
-ARG FLINK_VER=1.18.1
+ARG FLINK_VER=1.20.0
 ARG POETRY_VER=1.6.1
 
 RUN apt update -y \
@@ -16,7 +16,7 @@ RUN apt update -y \
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-arm64/
 ENV FLINK_HOME /flink
 ENV PATH $PATH:$FLINK_HOME/bin
-
+ENV FLINK_OPT_DIR /flink/opt
 WORKDIR /taskscripts
 
 COPY poetry.lock pyproject.toml ./
@@ -26,7 +26,12 @@ RUN poetry export -f requirements.txt -o requirements.txt --without-hashes \
     && pip install -r requirements.txt \
     && rm -f requirements.txt
 
-ADD https://repo1.maven.org/maven2/org/apache/flink/flink-connector-kafka/3.4.0-1.20/flink-connector-kafka-3.4.0-1.20.jar /jars
+RUN mkdir -p jars
+COPY jars/kafka-clients-3.4.0.jar /taskscripts/jars/
+COPY jars/flink-connector-kafka-3.4.0-1.20.jar /taskscripts/jars/
+COPY jars/kafka-clients-3.4.0.jar jars
+COPY jars/flink-connector-kafka-3.4.0-1.20.jar jars
 COPY flink_job.py ./
-COPY conf $FLINK_HOME/conf
-CMD ["flink", "run", "-py", "/taskscripts/flink_job.py", "--jobmanager", "jobmanager:8081", "--target", "local"]
+
+# CMD ["flink", "run", "-py", "/taskscripts/flink_job.py", "--jobmanager", "jobmanager:8081", "--parallelism", "1"]
+# CMD ["flink", "run", "-py", "/taskscripts/flink_job.py", "--jobmanager", "jobmanager:8081", "--target", "local"]

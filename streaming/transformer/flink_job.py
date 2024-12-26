@@ -5,8 +5,8 @@ import json
 from datetime import datetime
 
 env = StreamExecutionEnvironment.get_execution_environment()
-# the kafka/sql jar is used here as it's a fat jar and could avoid dependency issues
-env.add_jars("file:///jars/flink-connector-kafka-3.4.0-1.20.jar")
+env.add_jars("file:///taskscripts/jars/flink-connector-kafka-3.4.0-1.20.jar")
+env.add_jars("file:///taskscripts/jars/kafka-clients-3.4.0.jar")
 kafka_consumer = FlinkKafkaConsumer(
     topics="traffic_light_signals",
     deserialization_schema=SimpleStringSchema(),

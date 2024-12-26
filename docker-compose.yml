@@ -51,6 +51,9 @@ services:
       - 8081:8081
     environment:
       FLINK_PROPERTIES: "jobmanager.rpc.address: jobmanager"
+      FLINK_CONF_DIR: /opt/flink/conf
+    volumes:
+      - ./streaming/transformer/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     command:
       - jobmanager
 
@@ -58,6 +61,9 @@ services:
     image: flink:latest
     environment:
       FLINK_PROPERTIES: "jobmanager.rpc.address: jobmanager"
+      FLINK_CONF_DIR: /opt/flink/conf
+    volumes:
+      - ./streaming/transformer/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     command:
       - taskmanager
 
@@ -73,13 +79,15 @@ services:
     environment:
       - KAFKA_BROKER=broker:9092
       - FLINK_JOB_MANAGER_RPC_ADDRESS=jobmanager
-    command: >
-      flink run -py /opt/flink/usrlib/flink_job.py
-      --jobmanager jobmanager:8081
-      --parallelism 2
-    volumes:
-      - ./streaming/transformer/conf/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
-      - ./streaming/transformer/flink_job.py:/opt/flink/usrlib/flink_job.py
+    entrypoint:
+      - tail
+    command:
+      - -f
+      - /dev/null
+#    command: >
+#      flink run -py /opt/flink/usrlib/flink_job.py
+#      --jobmanager jobmanager:8081
+#      --parallelism 1
     restart: always
 
 
