@@ -1,12 +1,26 @@
-from pyflink.common import SimpleStringSchema
+from pyflink.common import SimpleStringSchema, Configuration
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
 import json
 from datetime import datetime
+# workaround for bugged env.add_jars
+# see https://issues.apache.org/jira/browse/FLINK-36457
+jars = [
+    "file:///taskscripts/jars/flink-connector-kafka-3.4.0-1.20.jar",
+    "file:///taskscripts/jars/kafka-clients-3.4.0.jar",
+    "file:///flink/opt/flink-python-1.20.0.jar"
+]
 
-env = StreamExecutionEnvironment.get_execution_environment()
-env.add_jars("file:///taskscripts/jars/flink-connector-kafka-3.4.0-1.20.jar")
-env.add_jars("file:///taskscripts/jars/kafka-clients-3.4.0.jar")
+conf = Configuration()
+
+conf.set_string("pipeline.jars", str(jars))
+
+env = StreamExecutionEnvironment.get_execution_environment(conf)
+
+# causes error, see: https://issues.apache.org/jira/browse/FLINK-36457?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel
+# env.add_jars("file:///taskscripts/jars/flink-connector-kafka-3.4.0-1.20.jar")
+# env.add_jars("file:///taskscripts/jars/kafka-clients-3.4.0.jar")
+# env.add_jars("file:///flink/opt/flink-python-1.20.0.jar")
 kafka_consumer = FlinkKafkaConsumer(
     topics="traffic_light_signals",
     deserialization_schema=SimpleStringSchema(),

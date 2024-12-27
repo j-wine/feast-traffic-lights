@@ -1,11 +1,13 @@
 FROM python:3.9.18-bullseye
 
-ARG FLINK_VER=1.20.0
+ARG FLINK_VER=1.18.1
 ARG POETRY_VER=1.6.1
 
 RUN apt update -y \
     && apt-get install -y --no-install-recommends \
     openjdk-11-jdk=11.0.* \
+    python3 python3-pip \
+    && ln -s /usr/bin/python3 /usr/bin/python \  # Ensure `python` points to `python3`
     && pip install poetry==$POETRY_VER \
     && mkdir -p /taskscripts /jars /flink \
     && wget -O /flink/flink.tgz https://dlcdn.apache.org/flink/flink-$FLINK_VER/flink-$FLINK_VER-bin-scala_2.12.tgz \
@@ -21,17 +23,17 @@ WORKDIR /taskscripts
 
 COPY poetry.lock pyproject.toml ./
 
-
 RUN poetry export -f requirements.txt -o requirements.txt --without-hashes \
     && pip install -r requirements.txt \
     && rm -f requirements.txt
 
+RUN pip install ruamel.yaml
 RUN mkdir -p jars
-COPY jars/kafka-clients-3.4.0.jar /taskscripts/jars/
-COPY jars/flink-connector-kafka-3.4.0-1.20.jar /taskscripts/jars/
-COPY jars/kafka-clients-3.4.0.jar jars
-COPY jars/flink-connector-kafka-3.4.0-1.20.jar jars
-COPY flink_job.py ./
 
-# CMD ["flink", "run", "-py", "/taskscripts/flink_job.py", "--jobmanager", "jobmanager:8081", "--parallelism", "1"]
+COPY jars/kafka-clients-3.0.1.jar jars
+COPY jars/flink-connector-kafka-3.0.1-1.18.jar jars
+COPY flink_job.py ./
+COPY conf /flink
+CMD ["flink", "run", "-py", "/taskscripts/flink_job.py", "--jobmanager", "jobmanager:8081", "--parallelism", "1"]
+
 # CMD ["flink", "run", "-py", "/taskscripts/flink_job.py", "--jobmanager", "jobmanager:8081", "--target", "local"]

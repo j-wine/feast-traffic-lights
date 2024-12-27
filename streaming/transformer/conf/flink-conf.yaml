@@ -1,13 +1,8 @@
 blob.server.port: 6124
 taskmanager.memory.process.size: 2048m
+pipeline.jars: file:///taskscripts/jars/flink-connector-kafka-3.0.1-1.18.jar,file:///taskscripts/jars/kafka-clients-3.0.1.jar
+parallelism.default: 1
+taskmanager.numberOfTaskSlots: 2
 jobmanager.rpc.address: jobmanager
 jobmanager.memory.process.size: 1024m
-state.savepoints.dir: file:///opt/flink/state/savepoints
 query.server.port: 6125
-rest.bind-port: 8081
-taskmanager.host: taskmanager
-high-availability: none
-pipeline.jars: file:///taskscripts/jars/flink-connector-kafka-3.4.0-1.20.jar,file:///taskscripts/jars/kafka-clients-3.4.0.jar
-taskmanager.numberOfTaskSlots: 4
-state.backend: rocksdb
-state.checkpoints.dir: file:///opt/flink/state/checkpoints
