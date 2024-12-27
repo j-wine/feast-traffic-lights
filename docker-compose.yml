@@ -79,15 +79,15 @@ services:
     environment:
       - KAFKA_BROKER=broker:9092
       - FLINK_JOB_MANAGER_RPC_ADDRESS=jobmanager
-    entrypoint:
-      - tail
-    command:
-      - -f
-      - /dev/null
-#    command: >
-#      flink run -py /opt/flink/usrlib/flink_job.py
-#      --jobmanager jobmanager:8081
-#      --parallelism 1
+#    entrypoint:
+#      - tail
+#    command:
+#      - -f
+#      - /dev/null
+    command: >
+      /flink/bin/flink run -py /taskscripts/flink_job.py 
+      --jobmanager jobmanager:8081
+      --parallelism 1
     restart: always
 
 

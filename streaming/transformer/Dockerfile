@@ -34,6 +34,6 @@ COPY jars/kafka-clients-3.0.1.jar jars
 COPY jars/flink-connector-kafka-3.0.1-1.18.jar jars
 COPY flink_job.py ./
 COPY conf /flink
-CMD ["flink", "run", "-py", "/taskscripts/flink_job.py", "--jobmanager", "jobmanager:8081", "--parallelism", "1"]
+#CMD ["flink", "run", "-py", "/taskscripts/flink_job.py", "--jobmanager", "jobmanager:8081", "--parallelism", "1"]
 
 # CMD ["flink", "run", "-py", "/taskscripts/flink_job.py", "--jobmanager", "jobmanager:8081", "--target", "local"]
