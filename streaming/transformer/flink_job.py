@@ -6,10 +6,8 @@ from datetime import datetime
 # workaround for bugged env.add_jars
 # see https://issues.apache.org/jira/browse/FLINK-36457
 jars = [
-    "file:///taskscripts/jars/flink-connector-kafka-3.4.0-1.20.jar",
-    "file:///taskscripts/jars/kafka-clients-3.4.0.jar",
-    "file:///flink/opt/flink-python-1.20.0.jar"
-]
+    "file:///taskscripts/jars/flink-connector-kafka-3.0.1-1.18.jar",
+    "file:///taskscripts/jars/kafka-clients-3.0.1.jar"]
 
 conf = Configuration()
 
