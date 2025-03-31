@@ -1,68 +1,28 @@
 services:
-  feature_server:
-    container_name: feature_server
-    build:
-      context: ./feature_repo
-    volumes:
-      - ./feature_repo:/app/feature_repo
-      - ./feature_repo/offline_data:/app/offline_data  # ✅ Mounts `offline_data` directly inside `/app/`
-    depends_on:
-      registry:
-        condition: service_healthy
-      redis:
-        condition: service_started
-      dask-worker:
-        condition: service_started
-    ports:
-      - "6566:6566"
-    links:
-      - registry
-    healthcheck:
-      test: "${DOCKER_HEALTHCHECK_TEST:-curl localhost:6566/health}"
-      interval: "5s"
-      retries: 5
-    restart: unless-stopped
-
-  kafka_consumer:
-    build:
-      context: ./streaming
-    volumes:
-      - ./feature_repo/offline_data:/app/offline_data # @BA needed by data_sources.traffic_light_batch_source: FileSource
-    container_name: kafka_consumer
-    depends_on:
-      broker-1:
-        condition: service_healthy
-      feature_server:
-        condition: service_healthy
-    environment:
-      - KAFKA_BROKER=broker:9092
-      - FEAST_REPO_PATH=/app/feature_repo
-    restart: unless-stopped
-
   spark_ingestor:
     build:
       context: ./streaming/spark_processor
       dockerfile: ./Dockerfile
     volumes:
-      - ./feature_repo/offline_data:/app/offline_data  # Mounts `offline_data` directly inside `/app/`
+      - ./feature_repo/offline_data:/app/offline_data
     container_name: spark_ingestor
     depends_on:
       broker-1:
-        condition: service_healthy
-      feature_server:
         condition: service_healthy
     restart: unless-stopped
 
   kafka_producer:
     build:
-      context: .
-      dockerfile: ./streaming/kafka_producer/Dockerfile
+      context: ./streaming/kafka_producer
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./feature_repo/offline_data:/app/offline_data
     container_name: kafka_producer
     depends_on:
       broker-1:
         condition: service_healthy
-      feature_server:
-        condition: service_healthy
+      spark_ingestor:
+        condition: service_started
     environment:
       - KAFKA_BROKER=broker:9092
     restart: unless-stopped
@@ -77,7 +37,6 @@ services:
     ports:
       - "55001:5432"
     volumes:
-      # Separate data and configuration volumes
       - ./feast-postgres-registry:/var/lib/postgresql/data
       - ./postgresql.conf:/etc/postgresql/postgresql.conf
       - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
@@ -100,25 +59,6 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
-    restart: unless-stopped
-
-  dask-scheduler:
-    image: ghcr.io/dask/dask:latest
-    container_name: dask-scheduler
-    command: dask-scheduler
-    ports:
-      - "8786:8786"
-      - "8787:8787"
-    restart: unless-stopped
-
-  dask-worker:
-    image: ghcr.io/dask/dask:latest
-    container_name: dask-worker
-    command: dask-worker dask-scheduler:8786
-    depends_on:
-      - dask-scheduler
-    links:
-      - dask-scheduler
     restart: unless-stopped
 
   zookeeper:

@@ -10,11 +10,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip
-RUN pip install --upgrade --no-cache-dir kafka-python==2.0.2 six
 
-# Copy the producer code and data
-COPY ./streaming/kafka_producer/kafka_producer.py /app/
 
 WORKDIR /app
+COPY requirements.txt /app/requirements.txt
+COPY kafka_producer.py /app/kafka_producer.py
+COPY feature_store.yaml /app/feature_store.yaml
+# Install dependencies
+RUN pip install --no-cache-dir -r /app/requirements.txt
 # wait for kafka broker
 CMD ["sh", "-c", "sleep 10 && python kafka_producer.py"]

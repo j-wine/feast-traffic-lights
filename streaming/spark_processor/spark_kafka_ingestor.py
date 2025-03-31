@@ -40,18 +40,18 @@ ingestion_config = SparkProcessorConfig(
     mode="spark",
     source="kafka",
     spark_session=spark,
-    processing_time="30 seconds",
+    processing_time="5 seconds",
     query_timeout=15
 )
 
 # Fetch stream feature view
-traffic_light_windowed_features = store.get_stream_feature_view("traffic_light_windowed_features")
+benchmark_features = store.get_stream_feature_view("benchmark_features_stream")
 
 # Initialize stream processor
 processor = get_stream_processor_object(
     config=ingestion_config,
     fs=store,
-    sfv=traffic_light_windowed_features,
+    sfv=benchmark_features,
     preprocess_fn=preprocess_fn
 )
 query = processor.ingest_stream_feature_view(to=PushMode.ONLINE)
