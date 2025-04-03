@@ -32,6 +32,7 @@ benchmark_stats_fv = FeatureView(
 )
 def benchmark_features_stream(df: DataFrame):
     from pyspark.sql.functions import col
+    print("df in benchmark_features_stream:", df)
     df = df.withColumn("sum", col("feature_0") + col("feature_9"))
     return df
 

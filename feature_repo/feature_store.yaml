@@ -6,5 +6,7 @@ registry:
 online_store:
   type: redis
   connection_string: host.docker.internal:6379
+offline_store:
+  type: file
 entity_key_serialization_version: 2
 
