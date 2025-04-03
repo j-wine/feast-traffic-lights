@@ -21,20 +21,23 @@ def poll_until_available(entity_id: int, start_time: float):
     for _ in range(60):
         result = store.get_online_features(
             features=[f"{FEATURE_VIEW}:sum"],
-            entity_rows=[{ENTITY_NAME: entity_id}]
+            entity_rows=[{ENTITY_NAME: entity_id}],
+            full_feature_names=True
         ).to_dict()
 
+        print(f"📦 Raw result dict: {result}")
+        print(f"🔑 Available keys: {list(result.keys())}")
 
-        val = result[f"{FEATURE_VIEW}:sum"][0]
-        if val is not None:
-            latency = time.time() - start_time
-            print(f"✅ {entity_id} ready in {latency:.3f}s: {val}")
-            with open(RESULT_CSV, "a") as f:
-                f.write(f"{entity_id},{start_time:.6f},{latency:.3f},{val}\n")
-            return
-        time.sleep(0.1)
-
-    print(f"❌ Timeout for {entity_id}")
+    #     val = result["sum"][0]
+    #     if val is not None:
+    #         latency = time.time() - start_time
+    #         print(f"✅ {entity_id} ready in {latency:.3f}s: {val}")
+    #         with open(RESULT_CSV, "a") as f:
+    #             f.write(f"{entity_id},{start_time:.6f},{latency:.3f},{val}\n")
+    #         return
+    #     time.sleep(0.1)
+    #
+    # print(f"❌ Timeout for {entity_id}")
 
 
 def main():
