@@ -3,6 +3,7 @@ from feast.types import Int64
 
 benchmark_entity = Entity(
     name="benchmark_entity",
-    value_type=ValueType.STRING,
+    join_keys=["benchmark_entity"],
+    value_type=ValueType.INT64,
 )
 

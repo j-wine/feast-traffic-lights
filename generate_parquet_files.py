@@ -7,10 +7,10 @@ from pathlib import Path
 
 def generate_data(num_rows: int, num_features: int, key_space: int) -> pd.DataFrame:
     features = [f"feature_{i}" for i in range(num_features)]
-    columns = ["entity", "event_timestamp"] + features
+    columns = ["benchmark_entity", "event_timestamp"] + features
     df = pd.DataFrame(0, index=np.arange(num_rows), columns=columns)
     df["event_timestamp"] = datetime.datetime.utcnow()
-    for column in ["entity"] + features:
+    for column in ["benchmark_entity"] + features:
         df[column] = np.random.randint(1, key_space, num_rows)
     return df
 

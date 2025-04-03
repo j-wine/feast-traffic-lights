@@ -7,7 +7,7 @@ KAFKA_TOPIC = "benchmark_signals"
 
 # Batch source for historical feature retrieval
 benchmark_batch_source = FileSource(
-    name="traffic_light_batch_source",
+    name="benchmark_batch_source",
     path="offline_data/generated_data.parquet",
     timestamp_field="event_timestamp",
 )
@@ -19,7 +19,7 @@ benchmark_stream_source = KafkaSource(
     timestamp_field="event_timestamp",
     batch_source=benchmark_batch_source,
     message_format=JsonFormat(
-        schema_json="entity int, event_timestamp timestamp, feature_0 int, feature_1 int, feature_2 int, feature_3 int, feature_4 int, feature_5 int, feature_6 int, feature_7 int, feature_8 int, feature_9 int"
+        schema_json="benchmark_entity int, event_timestamp timestamp, feature_0 int, feature_1 int, feature_2 int, feature_3 int, feature_4 int, feature_5 int, feature_6 int, feature_7 int, feature_8 int, feature_9 int"
     ),
     watermark_delay_threshold=timedelta(minutes=5),
 )

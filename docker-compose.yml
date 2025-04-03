@@ -1,4 +1,25 @@
 services:
+  feature_server:
+    container_name: feature_server
+    build:
+      context: ./feature_repo
+    volumes:
+      - ./feature_repo:/app/feature_repo
+    depends_on:
+      registry:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "6566:6566"
+    links:
+      - registry
+    healthcheck:
+      test: "${DOCKER_HEALTHCHECK_TEST:-curl localhost:6566/health}"
+      interval: "5s"
+      retries: 5
+    restart: unless-stopped
+
   spark_ingestor:
     build:
       context: ./streaming/spark_processor
